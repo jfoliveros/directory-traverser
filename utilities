@@ -1,0 +1,80 @@
+#!/bin/bash
+
+declare -A linked_list
+iterator=1
+
+Return(){
+  echo "$1"
+}
+
+is_object_a_target(){
+
+  local folder=$1
+
+  if [ -d $folder/key_folder ] && [ -f $folder/key.yaml ]
+  then
+    Return "Yes"
+  else Return "No"
+  fi
+}
+
+next_iter(){
+  local prev=$1
+
+  Return $(($prev + 1))
+}
+
+prev_iter(){
+  local prev=$1
+
+  Return $(($prev - 1))
+}
+
+create_linked_list(){
+
+  cd $BASE
+  linked_list[$iterator]="$(ls -d */ 2>/dev/null)"
+
+}
+
+forward(){
+  local directory=$1
+  cd $directory
+  iterator=$(next_iter $iterator)
+  linked_list[$iterator]="$(ls -d */ 2>/dev/null)"
+}
+
+backtrack(){
+  cd ..
+  iterator=$(prev_iter $iterator)
+}
+
+get_node_values(){
+  Return "${linked_list[$iterator]}"
+}
+
+remove_directory_from_path(){
+  local directory_to_remove=$1
+  directory_to_remove=${directory_to_remove/\//}
+
+  local node_directories=$(get_node_values)
+  linked_list[$iterator]=$(echo "$node_directories" | sed -e "s/^$directory_to_remove\///g")
+}
+
+get_next_node(){
+  local directories=($(get_node_values))
+  Return ${directories[0]}
+}
+
+process_node(){
+  node_values="$1"
+  for node_value in $node_values
+  do
+    if [ $(is_object_a_target $node_value) = "Yes" ]
+    then
+      echo "Target folder found: $node_value"
+      cp -r $node_value $BASE/FoundObjects
+      echo $(pwd)/$node_value >> $BASE/FoundObjects/$node_value/object_location
+    fi
+  done
+}
