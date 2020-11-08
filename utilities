@@ -55,6 +55,7 @@ get_node_values(){
 
 remove_directory_from_path(){
   local directory_to_remove=$1
+  process_directory $directory_to_remove
   directory_to_remove=${directory_to_remove/\//}
 
   local node_directories=$(get_node_values)
@@ -66,15 +67,12 @@ get_next_node(){
   Return ${directories[0]}
 }
 
-process_node(){
-  node_values="$1"
-  for node_value in $node_values
-  do
-    if [ $(is_object_a_target $node_value) = "Yes" ]
-    then
-      echo "Target folder found: $node_value"
-      cp -r $node_value $BASE/FoundObjects
-      echo $(pwd)/$node_value >> $BASE/FoundObjects/$node_value/object_location
-    fi
-  done
+process_directory(){
+  local directory="$1"
+  if [ $(is_object_a_target $directory) = "Yes" ]
+  then
+    echo "Target folder found: $directory"
+    cp -r $directory $BASE/FoundObjects
+    echo $(pwd)/$directory >> $BASE/FoundObjects/$directory/object_location
+  fi
 }

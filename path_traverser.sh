@@ -15,7 +15,6 @@ do
   then
     backtrack
   else
-    process_node $current_node_values
     next_node=$(get_next_node)
     remove_directory_from_path $next_node
     forward $next_node
